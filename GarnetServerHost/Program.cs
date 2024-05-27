@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Garnet.server;
+using Garnet.server.Auth;
 using Garnet.server.TLS;
 using GarnetServerHost.Options;
 using Microsoft.Extensions.Configuration;
@@ -18,8 +19,6 @@ namespace GarnetServerHost;
 
 public class Program
 {
-    private const string GarnetOptionsConfigBinding = "Garnet";
-
     public static void Main(string[] args)
     {
         CreateHostBuilder(args).Build().Run();
@@ -65,8 +64,8 @@ public class Program
                 services.AddSingleton<IOptions<GarnetServerOptions>>(services =>
                 {
                     var logger = services.GetService<Microsoft.Extensions.Logging.ILogger>();
-                    var garnetOptions = new GarnetServerOptions(logger: logger);
-                    var section = configuration.GetSection(GarnetOptionsConfigBinding);
+                    var garnetOptions = new ExtendedGarnetServerOptions(logger: logger);
+                    var section = configuration.GetSection(ExtendedGarnetServerOptions.ConfigBinding);
 
                     // serialize the configuration to JSON, then we'll deserialize into the GarnetServerOptions manually
                     var configJsonNode = SerializeConfiguration(section);
@@ -98,6 +97,11 @@ public class Program
                             clusterTlsClientTargetHost: tlsOptions.ClusterTlsClientTargetHost,
                             logger: logger
                         );
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(garnetOptions.Password))
+                    {
+                        garnetOptions.AuthSettings = new PasswordAuthenticationSettings(garnetOptions.Password);
                     }
 
                     return Microsoft.Extensions.Options.Options.Create(garnetOptions);
