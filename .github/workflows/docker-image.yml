@@ -91,7 +91,7 @@ jobs:
       - name: Install Cosign
         if: ${{ github.event_name != 'pull_request' }}
         uses: sigstore/cosign-installer@v3.5.0
-      - name: Check Cosign install!
+      - name: Check Cosign install
         if: ${{ github.event_name != 'pull_request' }}
         run: cosign version
       
