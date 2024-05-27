@@ -2,18 +2,23 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Garnet.server;
 using GarnetServerHost.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace GarnetServerHost;
 
 public class Program
 {
+    private const string GarnetOptionsConfigBinding = "Garnet";
+
     public static void Main(string[] args)
     {
         CreateHostBuilder(args).Build().Run();
@@ -59,37 +64,68 @@ public class Program
 
                 services.AddSingleton<IOptions<GarnetServerOptions>>(services =>
                 {
-                    var garnetOptions = CreateServerOptionsFromConfig(configuration, services);
+                    var logger = services.GetService<Microsoft.Extensions.Logging.ILogger>();
+                    var garnetOptions = new GarnetServerOptions(logger: logger);
+                    var section = configuration.GetSection(GarnetOptionsConfigBinding);
+
+                    // serialize the configuration to JSON, then we'll deserialize into the GarnetServerOptions manually
+                    var configJsonNode = Serialize(section);
+
+                    if (configJsonNode != null)
+                    {
+                        var configJson = configJsonNode.ToJsonString();
+
+                        // we have to use Newtonsoft instead of System.Text.Json as it supports public fields
+                        JsonConvert.PopulateObject(configJson, garnetOptions);
+                    }
+
                     return Microsoft.Extensions.Options.Options.Create(garnetOptions);
                 });
 
                 services.AddHostedService<GarnetServerWorker>();
             });
 
-    private static GarnetServerOptions CreateServerOptionsFromConfig(IConfiguration configuration, IServiceProvider services)
+    private static JsonNode Serialize(IConfiguration config)
     {
-        // the GarnetServerOptions has public fields but not properties (no setter or getters)
-        // instead, we can set these values using reflection since Bind does not support this
-        var logger = services.GetService<Microsoft.Extensions.Logging.ILogger>();
-        var garnetOptions = new GarnetServerOptions(logger: logger);
-        var section = configuration.GetSection("Garnet");
+        JsonObject obj = new();
 
-        // use Bind to set the options that are supported, i.e., the Public Properties
-        section.Bind(garnetOptions);
-
-        var props =
-            garnetOptions.GetType()
-                .GetFields(BindingFlags.Public | BindingFlags.Instance);
-        
-        foreach (var property in props)
+        foreach (var child in config.GetChildren())
         {
-            string configOption = section[property.Name];
-            if (!string.IsNullOrWhiteSpace(configOption))
+            if (child.Path.EndsWith(":0", StringComparison.OrdinalIgnoreCase))
             {
-                property.SetValue(garnetOptions, configOption);
+                var arr = new JsonArray();
+
+                foreach (var arrayChild in config.GetChildren())
+                {
+                    arr.Add(Serialize(arrayChild));
+                }
+
+                return arr;
+            }
+            else
+            {
+                obj.Add(child.Key, Serialize(child));
             }
         }
 
-        return garnetOptions;
+        if (obj.Count == 0 && config is IConfigurationSection section)
+        {
+            if (bool.TryParse(section.Value, out bool boolean))
+            {
+                return JsonValue.Create(boolean);
+            }
+            else if (decimal.TryParse(section.Value, out decimal real))
+            {
+                return JsonValue.Create(real);
+            }
+            else if (long.TryParse(section.Value, out long integer))
+            {
+                return JsonValue.Create(integer);
+            }
+
+            return JsonValue.Create(section.Value);
+        }
+
+        return obj;
     }
 }
