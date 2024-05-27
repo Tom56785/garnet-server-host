@@ -14,17 +14,20 @@ public class GarnetServerWorker : BackgroundService
 {
     private readonly ILogger<GarnetServerWorker> _logger;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly IHostApplicationLifetime _applicationLifetime;
     
     private readonly GarnetServerOptions _garnetServerOptions;
 
     public GarnetServerWorker(
         ILogger<GarnetServerWorker> logger,
         ILoggerFactory loggerFactory,
+        IHostApplicationLifetime applicationLifetime,
         IOptions<GarnetServerOptions> garnetServerOptions
     )
     {
         _logger = logger;
         _loggerFactory = loggerFactory;
+        _applicationLifetime = applicationLifetime;
         _garnetServerOptions = garnetServerOptions.Value;
     }
 
@@ -43,9 +46,19 @@ public class GarnetServerWorker : BackgroundService
                 await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
             }
         }
+        catch (OperationCanceledException)
+        {
+            _logger.GarnetServerIsShuttingDown();
+            Environment.ExitCode = 0;
+        }
         catch (Exception ex)
         {
             _logger.UnableToInitializeGarnetServer(ex);
+            Environment.ExitCode = 1;
+        }
+        finally
+        {
+            _applicationLifetime.StopApplication();
         }
     }
 }
