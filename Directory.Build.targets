@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup Condition=" '$(IsTestProject)' == 'true' ">
+        <AnalysisLevel>latest</AnalysisLevel>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    </PropertyGroup>
+</Project>

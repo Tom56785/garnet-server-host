@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Garnet Server Host",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet: build GarnetServerHost",
+            "program": "${workspaceFolder}/GarnetServerHost/bin/Debug/GarnetServerHost.dll",
+            "cwd": "${workspaceFolder}/GarnetServerHost/bin/Debug",
+            "args": [],
+            "env": {
+                "DOTNET_ENVIRONMENT": "Development"
+            }
+        }
+    ]
+}
