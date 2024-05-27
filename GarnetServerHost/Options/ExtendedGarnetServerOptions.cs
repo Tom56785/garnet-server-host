@@ -5,10 +5,10 @@ namespace GarnetServerHost.Options;
 
 public class ExtendedGarnetServerOptions : GarnetServerOptions
 {
-	public const string ConfigBinding = "Garnet";
-	public string Password { get; set; }
+    public const string ConfigBinding = "Garnet";
+    public string Password { get; set; }
 
-	public ExtendedGarnetServerOptions(ILogger logger = null)
+    public ExtendedGarnetServerOptions(ILogger logger = null)
         : base(logger)
     {
         base.logger = logger;
