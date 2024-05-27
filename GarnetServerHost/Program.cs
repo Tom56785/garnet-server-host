@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Garnet.server;
+using Garnet.server.TLS;
 using GarnetServerHost.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +78,27 @@ public class Program
 
                         // we have to use Newtonsoft instead of System.Text.Json as it supports public fields
                         JsonConvert.PopulateObject(configJson, garnetOptions);
+                        garnetOptions.TlsOptions = null;
+                    }
+
+                    var tlsOptions = new GarnetServerTlsOptions();
+                    configuration.GetSection(GarnetServerTlsOptions.ConfigBinding).Bind(tlsOptions);
+
+                    if (tlsOptions?.SetTlsOptions == true)
+                    {
+                        // there is some custom logic done when creating the TLS options, so we need to create like this rather than via JSON deserialization
+                        garnetOptions.TlsOptions = new GarnetTlsOptions(
+                            certFileName: tlsOptions.CertFileName,
+                            certPassword: tlsOptions.CertFilePassword,
+                            clientCertificateRequired: tlsOptions.ClientCertificateRequired,
+                            certificateRevocationCheckMode: System.Security.Cryptography.X509Certificates.X509RevocationMode.NoCheck,
+                            issuerCertificatePath: tlsOptions.IssuerCertificatePath,
+                            certSubjectName: tlsOptions.CertSubjectName,
+                            certificateRefreshFrequency: tlsOptions.CertificateRefreshFrequency,
+                            enableCluster: tlsOptions.EnableCluster,
+                            clusterTlsClientTargetHost: tlsOptions.ClusterTlsClientTargetHost,
+                            logger: logger
+                        );
                     }
 
                     return Microsoft.Extensions.Options.Options.Create(garnetOptions);
