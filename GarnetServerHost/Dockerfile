@@ -9,7 +9,7 @@ RUN dotnet restore "GarnetServerHost/GarnetServerHost.csproj"
 RUN dotnet build "GarnetServerHost/GarnetServerHost.csproj" -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/runtime:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 WORKDIR /app
 COPY --from=build-env --chown=app /app/out .
 
