@@ -1,4 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build-env
+EXPOSE 3278
+
 WORKDIR /app
 
 # Copy everything
