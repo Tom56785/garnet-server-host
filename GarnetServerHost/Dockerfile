@@ -1,6 +1,4 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build-env
-EXPOSE 3278
-
 WORKDIR /app
 
 # Copy everything
@@ -14,6 +12,8 @@ RUN dotnet build "GarnetServerHost/GarnetServerHost.csproj" -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
 WORKDIR /app
 COPY --from=build-env --chown=app /app/out .
+
+EXPOSE 3278
 
 USER app
 ENTRYPOINT ["dotnet", "GarnetServerHost.dll"]
