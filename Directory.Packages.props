@@ -1,0 +1,30 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
+        <PackageVersion Include="Microsoft.Garnet" Version="1.0.10" />
+        <PackageVersion Include="Serilog" Version="3.1.1" />
+        <PackageVersion Include="Serilog.AspNetCore" Version="8.0.1" />
+        <PackageVersion Include="Serilog.Enrichers.Environment" Version="2.3.0" />
+        <PackageVersion Include="Serilog.Enrichers.Thread" Version="3.1.0" />
+        <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
+        <PackageVersion Include="Serilog.Formatting.Compact" Version="2.0.0" />
+        <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" />
+        <PackageVersion Include="Serilog.Sinks.Async" Version="1.5.0" />
+        <PackageVersion Include="Serilog.Sinks.Console" Version="5.0.1" />
+        <PackageVersion Include="Serilog.Sinks.Debug" Version="2.0.0" />
+        <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
+
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+        <PackageVersion Include="Moq" Version="4.20.70" />
+        <PackageVersion Include="NUnit" Version="4.1.0" />
+        <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageVersion Include="NUnit.Analyzers" Version="4.1.0" />
+        <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    </ItemGroup>
+</Project>
