@@ -57,7 +57,6 @@ public class Program
                         source.FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(secretsOptions.RootFolder, Microsoft.Extensions.FileProviders.Physical.ExclusionFilters.None);
                     }
                 });
-
             })
             .ConfigureServices((hostContext, services) =>
             {
@@ -70,7 +69,7 @@ public class Program
                     var section = configuration.GetSection(GarnetOptionsConfigBinding);
 
                     // serialize the configuration to JSON, then we'll deserialize into the GarnetServerOptions manually
-                    var configJsonNode = Serialize(section);
+                    var configJsonNode = SerializeConfiguration(section);
 
                     if (configJsonNode != null)
                     {
@@ -107,7 +106,7 @@ public class Program
                 services.AddHostedService<GarnetServerWorker>();
             });
 
-    private static JsonNode Serialize(IConfiguration config)
+    private static JsonNode SerializeConfiguration(IConfiguration config)
     {
         JsonObject obj = new();
 
@@ -119,14 +118,14 @@ public class Program
 
                 foreach (var arrayChild in config.GetChildren())
                 {
-                    arr.Add(Serialize(arrayChild));
+                    arr.Add(SerializeConfiguration(arrayChild));
                 }
 
                 return arr;
             }
             else
             {
-                obj.Add(child.Key, Serialize(child));
+                obj.Add(child.Key, SerializeConfiguration(child));
             }
         }
 
