@@ -88,6 +88,13 @@ jobs:
       # repository is public to avoid leaking data.  If you would like to publish
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
+      - name: Install Cosign
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: sigstore/cosign-installer@v3.5.0
+      - name: Check Cosign install
+        if: ${{ github.event_name != 'pull_request' }}
+        run: cosign version
+      
       - name: Sign the published Docker image
         if: ${{ github.event_name != 'pull_request' }}
         env:
