@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  garnet:
+    image: ghcr.io/tom56785/garnet-server-host:main
+    ports:
+      - 3278:3278
+    environment:
+      DockerSecretsConfigSource__RootFolder: /run/secrets
+      Garnet__Port: 3278
+      # If Address is not specified, Garnet will pick an address to bind to, usually 127.0.0.1
+      # 127.0.0.1 will bind only within the container itself so will not be accessible outside the container
+      # 0.0.0.0 is a wildcard IP address to tell Garnet to listen on all addresses
+      Garnet__Address: '0.0.0.0'
+    secrets:
+      - source: garnet-password
+        target: Garnet__Password
+        uid: '1654'
+        gid: '1654'
+        mode: 0440
+
+secrets:
+  garnet-password:
+    external: true
