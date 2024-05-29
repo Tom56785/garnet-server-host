@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  garnet:
+    image: ghcr.io/tom56785/garnet-server-host:main
+    ports:
+      - 3278:3278
+    environment:
+      DockerSecretsConfigSource__RootFolder: /run/secrets
+      Garnet__Port: 3278
+      Garnet__Address: '0.0.0.0'
+    secrets:
+      - source: garnet-password
+        target: Garnet__Password
+        uid: '1654'
+        gid: '1654'
+        mode: 0440
+
+secrets:
+  garnet-password:
+    external: true
